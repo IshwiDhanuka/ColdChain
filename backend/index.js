@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const stickerRoutes = require('./src/routes/sticker');
+const authRoutes = require('./src/routes/auth');
 
 const app = express();
 app.use(cors());
@@ -13,6 +14,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/sticker', stickerRoutes);
+app.use('/auth', authRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
