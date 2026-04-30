@@ -1,0 +1,4 @@
+node_modules/
+.env
+src/db/schema.sql
+src/db/seed.sql
