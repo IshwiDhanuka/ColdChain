@@ -23,16 +23,17 @@ export default function AdminPage() {
     loadData()
   }, [])
 
-  function loadData() {
+  async function loadData() {
     setOrders(MockApi.getAllOrders())
-    setBreaches(MockApi.getBreaches())
     setAnalytics(MockApi.getHistoricalAnalytics())
+    const result = await MockApi.getBreaches()
+    setBreaches(result.ok ? result.data : [])
   }
 
-  function handleReset() {
-    MockApi.resetDemo()
+  async function handleReset() {
+    await MockApi.resetDemo()
     showToast('Demo Environment Reset Successfully', 'success')
-    loadData()
+    await loadData()
   }
 
   const chartData = analytics ? {

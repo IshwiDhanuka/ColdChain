@@ -15,6 +15,9 @@ export default function ScanPage() {
   const [order, setOrder]     = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
   const [manualId, setManualId] = useState('')
+  const [scannerError, setScannerError] = useState('')
+  const [scannerStarting, setScannerStarting] = useState(false)
+  const [scannerStarted, setScannerStarted] = useState(false)
   const videoRef              = useRef(null)
   const navigate              = useNavigate()
   const [searchParams]        = useSearchParams()
@@ -26,7 +29,11 @@ export default function ScanPage() {
     else showToast('Could not read QR. Try manual entry.', 'error')
   }, [])
 
-  const handleError = useCallback((msg) => showToast(msg, 'error'), [])
+  const handleError = useCallback((msg) => {
+    setScannerError(msg)
+    setScannerStarted(false)
+    setScannerStarting(false)
+  }, [])
 
   const { start, stop } = useQRScanner({ onResult: handleResult, onError: handleError })
 
@@ -43,15 +50,34 @@ export default function ScanPage() {
     if (urlId) { loadOrder(urlId) }
   }, [])
 
-  // Start scanner when scan view is shown
+  // Stop scanner when leaving the scan view.
   useEffect(() => {
-    if (view === VIEWS.SCAN && videoRef.current && isQRSupported()) {
-      start(videoRef.current)
+    if (view !== VIEWS.SCAN) {
+      stop()
+      setScannerStarted(false)
+      setScannerStarting(false)
     }
-    if (view !== VIEWS.SCAN) stop()
-  }, [view])
+  }, [view, stop])
 
-  function handleRetry() { stop(); setView(VIEWS.SCAN) }
+  async function handleStartCamera() {
+    if (!isQRSupported()) {
+      setScannerError('Camera scanning is not supported in this browser. Use manual order entry below.')
+      return
+    }
+
+    setScannerError('')
+    setScannerStarting(true)
+    const ok = await start(videoRef.current)
+    setScannerStarting(false)
+    setScannerStarted(ok)
+  }
+
+  function handleStopCamera() {
+    stop()
+    setScannerStarted(false)
+  }
+
+  function handleRetry() { stop(); setScannerError(''); setScannerStarted(false); setView(VIEWS.SCAN) }
 
   function handleManualSubmit() {
     const val = manualId.trim().toUpperCase()
@@ -86,6 +112,20 @@ export default function ScanPage() {
             <p className={styles.scanHint}>Point camera at the QR sticker on your package</p>
           </div>
           <div className={styles.scanBottom}>
+            <div className={styles.cameraActions}>
+              {!scannerStarted ? (
+                <Button onClick={handleStartCamera} loading={scannerStarting} full>
+                  Start camera
+                </Button>
+              ) : (
+                <Button onClick={handleStopCamera} variant="ghost" full>
+                  Stop camera
+                </Button>
+              )}
+              {scannerError && (
+                <p className={styles.cameraNotice}>{scannerError} Manual entry and mock orders are ready below.</p>
+              )}
+            </div>
             <p className={styles.scanLabel}><strong>ColdChain</strong> — Cold Chain Verifier</p>
             <div style={{ display: 'flex', gap: 8 }}>
               <input

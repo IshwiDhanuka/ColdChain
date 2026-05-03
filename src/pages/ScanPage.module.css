@@ -13,6 +13,8 @@
 .scanLine { position:absolute;left:8px;right:8px;height:2px; background:linear-gradient(90deg,transparent,var(--orange),transparent); animation:scanLine 2s linear infinite; box-shadow:0 0 8px var(--orange); }
 .scanHint { color:rgba(255,255,255,.8); font-size:13px; font-weight:500; text-shadow:0 1px 8px rgba(0,0,0,.8); position:absolute; bottom:12px; text-align:center; width:100%; padding:0 16px; }
 .scanBottom { padding:20px 20px calc(var(--safe-bottom)+20px); background:rgba(255,255,255,.95); backdrop-filter:blur(20px); display:flex; flex-direction:column; gap:12px; border-top: 1px solid var(--border); }
+.cameraActions { display:flex; flex-direction:column; gap:10px; }
+.cameraNotice { margin:0; padding:10px 12px; border-radius:10px; background:var(--red-light); color:var(--red); font-size:12px; line-height:1.5; font-weight:600; }
 .scanLabel { text-align:center; font-size:13px; color:var(--text-secondary); font-weight:500; }
 .manualInput { flex:1; background:var(--bg-surface); border:1px solid var(--border); border-radius:12px; color:var(--text-primary); padding:12px 16px; font-size:max(16px,1em); outline:none; transition:border-color var(--transition); }
 .manualInput:focus { border-color:var(--border-focus); }

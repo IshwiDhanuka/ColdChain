@@ -79,6 +79,7 @@ const SEED_ORDERS = [
 ]
 
 const delay = ms => new Promise(r => setTimeout(r, ms))
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 function generateRefId() {
   const d = new Date()
@@ -96,17 +97,61 @@ export const MockApi = {
   },
 
   async submitBreach(payload) {
-    await delay(700)
-    const refId = generateRefId()
-    const breach = { refId, ...payload, submittedAt: new Date().toISOString(), status: 'submitted' }
-    const existing = this.getBreaches()
-    existing.push(breach)
-    localStorage.setItem('cc_breaches', JSON.stringify(existing))
-    return { ok: true, data: { refId, submittedAt: breach.submittedAt } }
+    const form = new FormData()
+    const fields = [
+      'orderId',
+      'product',
+      'deliveryPartner',
+      'deliveryPartnerId',
+      'platform',
+      'breachType',
+      'description',
+    ]
+
+    fields.forEach(field => {
+      if (payload[field] !== undefined && payload[field] !== null) {
+        form.append(field, payload[field])
+      }
+    })
+
+    if (payload.photoFile) {
+      form.append('photo', payload.photoFile, payload.photoFile.name || 'breach-photo.jpg')
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/breach`, {
+        method: 'POST',
+        body: form,
+      })
+      const json = await response.json()
+      if (!response.ok || !json.ok) {
+        return { ok: false, message: json.error || 'Submission failed' }
+      }
+      return { ok: true, data: json.data }
+    } catch {
+      await delay(700)
+      const refId = generateRefId()
+      const breach = { refId, ...payload, submittedAt: new Date().toISOString(), status: 'submitted' }
+      const existing = this.getLocalBreaches()
+      existing.push(breach)
+      localStorage.setItem('cc_breaches', JSON.stringify(existing))
+      return { ok: true, data: { refId, submittedAt: breach.submittedAt } }
+    }
   },
 
-  getBreaches() {
+  getLocalBreaches() {
     try { return JSON.parse(localStorage.getItem('cc_breaches') || '[]') } catch { return [] }
+  },
+
+  async getBreaches() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/breach`)
+      const json = await response.json()
+      if (!response.ok || !json.ok) return { ok: false, data: this.getLocalBreaches() }
+      return { ok: true, data: json.data }
+    } catch {
+      return { ok: true, data: this.getLocalBreaches() }
+    }
   },
 
   getAllOrders() {
@@ -132,8 +177,11 @@ export const MockApi = {
     };
   },
 
-  resetDemo() {
+  async resetDemo() {
     localStorage.removeItem('cc_breaches')
+    try {
+      await fetch(`${API_BASE_URL}/breach`, { method: 'DELETE' })
+    } catch { }
     return { ok: true }
   },
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { GlowBlobs, Button, Badge, Card, Pill } from '../components/UI'
+import { GlowBlobs, Button, Badge } from '../components/UI'
 import { useToast, ToastContainer } from '../hooks/useToast'
 import { MockApi } from '../services/mockApi'
 import styles from './BreachPage.module.css'
@@ -16,6 +16,19 @@ const BREACH_TYPES = [
   { id: 'other',        label: 'Other' },
 ]
 
+function createDemoPhotoFile() {
+  const svg = [
+    '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">',
+    '<rect width="640" height="420" fill="#fee2e2"/>',
+    '<rect x="54" y="52" width="532" height="316" rx="28" fill="#fff" stroke="#ef4444" stroke-width="10"/>',
+    '<circle cx="168" cy="210" r="62" fill="#ef4444"/>',
+    '<text x="260" y="186" font-family="Arial" font-size="34" font-weight="700" fill="#111827">Cold Chain Breach</text>',
+    '<text x="260" y="238" font-family="Arial" font-size="24" fill="#374151">Demo photo evidence</text>',
+    '</svg>',
+  ].join('')
+  return new File([svg], 'demo-breach-photo.svg', { type: 'image/svg+xml' })
+}
+
 export default function BreachPage() {
   const navigate              = useNavigate()
   const [searchParams]        = useSearchParams()
@@ -23,6 +36,7 @@ export default function BreachPage() {
 
   const [order, setOrder]         = useState(null)
   const [photo, setPhoto]         = useState(null)   // dataUrl
+  const [photoFile, setPhotoFile] = useState(null)
   const [breachType, setBreachType] = useState(null)
   const [desc, setDesc]           = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -40,7 +54,7 @@ export default function BreachPage() {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = ev => { setPhoto(ev.target.result); setErrors(er => ({ ...er, photo: false })) }
+    reader.onload = ev => { setPhoto(ev.target.result); setPhotoFile(file); setErrors(er => ({ ...er, photo: false })) }
     reader.readAsDataURL(file)
   }
 
@@ -50,7 +64,7 @@ export default function BreachPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const errs = {}
-    if (!photo) errs.photo = true
+    if (!photo || !photoFile) errs.photo = true
     if (!breachType) errs.type = true
     if (Object.keys(errs).length) { setErrors(errs); showToast('Please fill in all required fields.', 'error'); return }
 
@@ -61,7 +75,7 @@ export default function BreachPage() {
       deliveryPartner: order?.deliveryPartner || '',
       deliveryPartnerId: order?.deliveryPartnerId || '',
       platform: order?.platform || '',
-      breachType, description: desc, photoDataUrl: photo,
+      breachType, description: desc, photoFile,
     })
     setSubmitting(false)
 
@@ -127,7 +141,9 @@ export default function BreachPage() {
                       style={{ marginTop: 12 }}
                       onClick={(e) => { 
                         e.preventDefault(); 
-                        setPhoto('https://images.unsplash.com/photo-1559182967-df5e11f11e9a?w=400&q=80'); 
+                        const file = createDemoPhotoFile()
+                        setPhotoFile(file)
+                        setPhoto(URL.createObjectURL(file)); 
                         setErrors(er => ({ ...er, photo: false })); 
                       }}
                     >
@@ -137,7 +153,7 @@ export default function BreachPage() {
                 ) : (
                   <>
                     <img src={photo} alt="Uploaded" className={styles.photoPreview} />
-                    <button type="button" className={styles.photoRemove} onClick={(e) => { e.stopPropagation(); setPhoto(null) }}>✕</button>
+                    <button type="button" className={styles.photoRemove} onClick={(e) => { e.stopPropagation(); setPhoto(null); setPhotoFile(null) }}>✕</button>
                   </>
                 )}
               </div>
