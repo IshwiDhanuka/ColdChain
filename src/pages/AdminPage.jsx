@@ -4,13 +4,13 @@ import { Badge, Button } from '../components/UI'
 import { MockApi } from '../services/mockApi'
 import styles from './AdminPage.module.css'
 import {
-  Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement,
+  Chart as ChartJS, CategoryScale, LinearScale, BarController, LineController, BarElement, LineElement, PointElement,
   Title, Tooltip, Legend
 } from 'chart.js'
 import { Bar, Line, Chart } from 'react-chartjs-2'
 import { useToast, ToastContainer } from '../hooks/useToast'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend)
+ChartJS.register(CategoryScale, LinearScale, BarController, LineController, BarElement, LineElement, PointElement, Title, Tooltip, Legend)
 
 export default function AdminPage() {
   const { toasts, showToast } = useToast()
