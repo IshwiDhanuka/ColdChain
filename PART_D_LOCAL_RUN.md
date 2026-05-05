@@ -41,6 +41,7 @@ Open:
 
 - Consumer app: `http://localhost:5173`
 - Admin dashboard: `http://localhost:5173/admin`
+- QR generator: `http://localhost:5173/generate`
 - Backend health: `http://localhost:3001`
 
 ## Demo Flow
@@ -51,3 +52,5 @@ Open:
 4. Open the admin dashboard and confirm the report appears in Live Breach Reports.
 
 Runtime breach data is written to `backend/data/`, and uploaded photos are written to `backend/uploads/`.
+
+For deployment, set the backend `FRONTEND_URL` to the Vercel URL, for example `https://coldchain-rouge.vercel.app`, so generated QR codes point to the live scanner.

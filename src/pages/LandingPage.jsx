@@ -26,6 +26,7 @@ export default function LandingPage() {
           </p>
           <div className={styles.heroCtas}>
             <Link to="/scan" className={styles.ctaPrimary}>Scan Prototype Sticker</Link>
+            <Link to="/generate" className={styles.ctaGhost}>Generate QR</Link>
             <a href="#architecture" className={styles.ctaGhost}>Explore Architecture ↓</a>
           </div>
         </div>

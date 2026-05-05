@@ -4,6 +4,7 @@ import ScanPage from './pages/ScanPage'
 import BreachPage from './pages/BreachPage'
 import ConfirmationPage from './pages/ConfirmationPage'
 import AdminPage from './pages/AdminPage'
+import GeneratePage from './pages/GeneratePage'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       <Route path="/breach" element={<BreachPage />} />
       <Route path="/confirmation" element={<ConfirmationPage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/generate" element={<GeneratePage />} />
     </Routes>
   )
 }

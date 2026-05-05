@@ -16,7 +16,10 @@ export default function Navbar({ backTo, backLabel }) {
         <span className={styles.logoIcon}></span>
         <span>ColdChain</span>
       </Link>
-      <Link to="/scan" className={styles.scanBtn}>Scan QR</Link>
+      <div className={styles.actions}>
+        <Link to="/generate" className={styles.generateBtn}>Generate QR</Link>
+        <Link to="/scan" className={styles.scanBtn}>Scan QR</Link>
+      </div>
     </nav>
   )
 }

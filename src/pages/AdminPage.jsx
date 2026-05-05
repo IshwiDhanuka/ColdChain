@@ -24,7 +24,8 @@ export default function AdminPage() {
   }, [])
 
   async function loadData() {
-    setOrders(MockApi.getAllOrders())
+    const generatedOrders = await MockApi.getGeneratedOrders()
+    setOrders([...MockApi.getAllOrders(), ...generatedOrders])
     setAnalytics(MockApi.getHistoricalAnalytics())
     const result = await MockApi.getBreaches()
     setBreaches(result.ok ? result.data : [])

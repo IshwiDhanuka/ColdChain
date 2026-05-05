@@ -92,8 +92,62 @@ export const MockApi = {
   async getOrder(orderId) {
     await delay(500)
     const order = SEED_ORDERS.find(o => o.orderId === orderId.toUpperCase())
-    if (!order) return { ok: false, message: `No order found with ID "${orderId}". Check the sticker and try again.` }
-    return { ok: true, data: order }
+    if (order) return { ok: true, data: order }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders/${encodeURIComponent(orderId)}`)
+      const json = await response.json()
+      if (response.ok && json.ok) return { ok: true, data: json.data }
+    } catch { }
+
+    return { ok: false, message: `No order found with ID "${orderId}". Check the sticker and try again.` }
+  },
+
+  async generateOrder(payload) {
+    const form = new FormData()
+    const fields = [
+      'product',
+      'brand',
+      'requiredTempRange',
+      'restaurant',
+      'platform',
+      'stickerStatus',
+    ]
+
+    fields.forEach(field => {
+      if (payload[field] !== undefined && payload[field] !== null) {
+        form.append(field, payload[field])
+      }
+    })
+
+    if (payload.photoFile) {
+      form.append('photo', payload.photoFile, payload.photoFile.name || 'product-photo.jpg')
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders/generate`, {
+        method: 'POST',
+        body: form,
+      })
+      const json = await response.json()
+      if (!response.ok || !json.ok) {
+        return { ok: false, message: json.error || 'Could not generate QR' }
+      }
+      return { ok: true, data: json.data }
+    } catch {
+      return { ok: false, message: 'Backend is not reachable. Check the API deployment and try again.' }
+    }
+  },
+
+  async getGeneratedOrders() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders`)
+      const json = await response.json()
+      if (!response.ok || !json.ok) return []
+      return json.data
+    } catch {
+      return []
+    }
   },
 
   async submitBreach(payload) {

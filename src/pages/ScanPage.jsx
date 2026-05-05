@@ -19,6 +19,7 @@ export default function ScanPage() {
   const [scannerStarting, setScannerStarting] = useState(false)
   const [scannerStarted, setScannerStarted] = useState(false)
   const videoRef              = useRef(null)
+  const qrImageInputRef       = useRef(null)
   const navigate              = useNavigate()
   const [searchParams]        = useSearchParams()
   const { toasts, showToast } = useToast()
@@ -35,7 +36,7 @@ export default function ScanPage() {
     setScannerStarting(false)
   }, [])
 
-  const { start, stop } = useQRScanner({ onResult: handleResult, onError: handleError })
+  const { start, stop, scanImage } = useQRScanner({ onResult: handleResult, onError: handleError })
 
   async function loadOrder(id) {
     setView(VIEWS.LOADING)
@@ -75,6 +76,13 @@ export default function ScanPage() {
   function handleStopCamera() {
     stop()
     setScannerStarted(false)
+  }
+
+  async function handleQRImage(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    await scanImage(file)
+    e.target.value = ''
   }
 
   function handleRetry() { stop(); setScannerError(''); setScannerStarted(false); setView(VIEWS.SCAN) }
@@ -125,6 +133,17 @@ export default function ScanPage() {
               {scannerError && (
                 <p className={styles.cameraNotice}>{scannerError} Manual entry and mock orders are ready below.</p>
               )}
+              <input
+                ref={qrImageInputRef}
+                className={styles.hiddenFile}
+                type="file"
+                accept="image/*"
+                onChange={handleQRImage}
+                aria-label="Upload QR image"
+              />
+              <Button variant="ghost" full onClick={() => qrImageInputRef.current?.click()}>
+                Upload QR image
+              </Button>
             </div>
             <p className={styles.scanLabel}><strong>ColdChain</strong> — Cold Chain Verifier</p>
             <div style={{ display: 'flex', gap: 8 }}>

@@ -7,8 +7,10 @@ const stickerRoutes = require('./src/routes/sticker');
 const authRoutes = require('./src/routes/auth');
 const breachRoutes = require('./src/routes/breach');
 const refundRoutes = require('./src/routes/refund');
+const orderRoutes = require('./src/routes/orders');
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(cors({
   origin: process.env.FRONTEND_ORIGIN || true,
 }));
@@ -24,6 +26,7 @@ app.use('/sticker', stickerRoutes);
 app.use('/auth', authRoutes);
 app.use('/breach', breachRoutes);
 app.use('/refund', refundRoutes);
+app.use('/orders', orderRoutes);
 
 app.use((err, req, res, next) => {
   if (err) {
